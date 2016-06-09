@@ -1,0 +1,30 @@
+html, body {
+    height: 100%;
+}
+
+h2 {
+    text-align: center;
+}
+
+#board {
+    display: block;
+    margin: 0 auto;
+    width: 360px;
+    height: 360px;
+}
+
+.cell {
+    display: inline-block;
+    border: 1px solid blue;
+    /*background-color: blue;*/
+    height: 100px;
+    width: 100px;
+    position: relative;
+    margin: 0;
+}
+
+.cell p {
+    text-align: center;
+    margin: 5px;
+    padding: 2px;
+}
