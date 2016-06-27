@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 };
 
-    var currentPlayer  = players.player1;
+    var currentPlayer = players.player1;
 
     //on click of a position, fill with a mark if marks isn't already there
     document.getElementById('board').addEventListener("click", function(event) {
@@ -29,7 +29,9 @@ document.addEventListener("DOMContentLoaded", function() {
     var init = function () {
         getAllMarks();
         checkForWinners();
-        catsGameChecker();
+        if (catsGameChecker() == true) {
+            return
+        };
         allMarks = [];
         if (won == false) {
             changePlayer();
@@ -106,8 +108,9 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
     var catsGameChecker = function () {
-        if ((allMarks.includes("") == false) && (won == false)) {
+        if (allMarks.includes("") == false && won == false) {
             header.innerText = "Cat's game! No winners.";
+            return true
         } 
     }
     
