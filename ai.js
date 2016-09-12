@@ -1,11 +1,9 @@
-document.addEventListener("DOMContentLoaded", function() { 
+// var exports = module.exports = {};
 
-    var buttons = document.getElementsByClassName("button");
-
-    for (i = 0; i < buttons.length; i++) {
-        buttons[i].addEventListener("click", function (e) {
-            var mode = e.target.innerText;
-            document.getElementById('board').style.visibility = "visible";
-        });
+    var computerPick = function () {
+        //evaluate the board looking for any space where:
+        // - it takes one mark to win the game
+        // - it takes one mark to block the player from winning the game
+        // - it is the center of the board
+        // - any other spot
     }
-});
