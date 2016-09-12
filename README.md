@@ -2,7 +2,7 @@
 
 Tic-tac-toe board game made with Javascript, no libraries.
 
-![Game preview image](https://github.com/aklap/blob/master/game-preview.gif)
+![Game preview image](https://github.com/aklap/js_tic-tac-toe/blob/master/game-preview.gif)
 
 Features:
 
