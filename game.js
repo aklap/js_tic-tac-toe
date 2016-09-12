@@ -1,5 +1,8 @@
+// var computerPick = require("./ai.js")
+
 document.addEventListener("DOMContentLoaded", function() { 
     var won = false;
+    var mode = "";
     var allMarks = [];
     var players = {
                     player1 : {
@@ -12,10 +15,26 @@ document.addEventListener("DOMContentLoaded", function() {
                         name: "Player 2",
                         score: 0, 
                         mark: 'o'
+                    }, 
+
+                    program : {
+                        name: "Program",
+                        score: 0, 
+                        mark: 'o'
                     }
                 };
 
     var currentPlayer = players.player1;
+    // Set the mode
+
+    var buttons = document.getElementsByClassName("button");
+    for (i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", function (e) {
+            mode = e.target.innerHTML;
+            document.getElementById('board').style.visibility = "visible";
+            document.getElementById('button-container').style.visibility = "hidden";
+        });
+    }
 
     //on click of a position, fill with a mark if marks isn't already there
     document.getElementById('board').addEventListener("click", function(event) {
@@ -41,8 +60,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //change turns
     var changePlayer = function () {
-        currentPlayer == players.player1 ? currentPlayer = players.player2 : currentPlayer = players.player1;
-        header.innerText = currentPlayer.name + "'s turn.";
+        if (mode == "Human") {
+            currentPlayer == players.player1 ? currentPlayer = players.player2 : currentPlayer = players.player1;
+            header.innerText = currentPlayer.name + "'s turn.";
+        }
+
+        if (mode == "Program") {
+            currentPlayer == players.player1 ? currentPlayer = players.program : currentPlayer = players.player1;
+            header.innerText = currentPlayer.name + "'s turn.";
+            computerPick();
+        }
     }
 
     //function to store marks and their positions
