@@ -1,152 +1,153 @@
-// var computerPick = require("./ai.js")
+document.addEventListener("DOMContentLoaded", function(event) {
 
-document.addEventListener("DOMContentLoaded", function() { 
-    var won = false;
-    var mode = "";
-    var allMarks = [];
-    var players = {
-                    player1 : {
-                        name: "Player 1",
-                        score : 0, 
-                        mark : 'x'
-                    },
+    var buttons = document.getElementsByClassName("button"),
+        cells = document.getElementsByClassName('cell');
 
-                    player2 : {
-                        name: "Player 2",
-                        score: 0, 
-                        mark: 'o'
-                    }, 
+    //create Game object
+    function Game () {
+        this.won = false;
+        this.mode = "";
+        this.players = {
+                        player1 : {
+                            name: "Player 1",
+                            score : 0, 
+                            mark : 'x'
+                        },
 
-                    program : {
-                        name: "Program",
-                        score: 0, 
-                        mark: 'o'
-                    }
-                };
+                        player2 : {
+                            name: "Player 2",
+                            score: 0, 
+                            mark: 'o'
+                        }, 
+                    };
 
-    var currentPlayer = players.player1;
-    // Set the mode
+        this.currentPlayer = this.players['player1'];
+    }
 
-    var buttons = document.getElementsByClassName("button");
-    for (i = 0; i < buttons.length; i++) {
+    Game.prototype.makeMark = function (cell) {
+        cell.target.innerText = this.currentPlayer['mark'];
+    };
+
+    //change turns
+    Game.prototype.changePlayer = function () {
+        var player1 = this.players.player1,
+            player2 = this.players.player2;
+        if (!this.won) {
+            this.currentPlayer === player1 ? this.currentPlayer = player2 : this.currentPlayer = player1;
+            //TODO in a separate display function
+            document.getElementById('header').innerText = game.currentPlayer.name + "'s turn.";
+        }
+    };
+    
+
+    //fetch board state and return it
+    Game.prototype.getBoard = function () {
+        var boardState = [];
+        var cells = document.getElementsByClassName("cell");
+
+        for (i = 0; i < cells.length; i++) {
+            boardState.push(cells[i].innerText);
+        }
+
+        return boardState;
+    };
+
+    Game.prototype.checkForWinners = function (board) {
+        function isWinner(el, index, array) {
+            return el === game.currentPlayer.mark;
+        }
+        
+        // check for horizontal winners
+        var horizontalChecker = function () {
+            for(var i=0; i <=6; i+=3) {
+                var row = board.slice(i, i+3);
+
+                if (row.every(isWinner)) {
+                    return game.gameOver();
+                }
+            }
+        };
+
+        // check for vertical winners
+        var verticalChecker = function () {
+            var start = 0;
+
+            for(var i = start; i < board.length; i++) {
+                var col = board[i] + board[i+3] + board[i+6];
+                col = col.split('');
+
+                if (col.length === 3 && col.every(isWinner)) {
+                    return game.gameOver();
+                } 
+            }
+        };    
+        
+        //     check for diagonal winners
+        var diagonalChecker = function () {
+            // if any corners  && middle === win
+                diagonals = [];
+
+                diagonals.push(board[2] + board[4] + board[6]);
+                diagonals.push(board[0] + board[4] + board[8]);
+
+            for (var i = 0; i<diagonals.length; i++) {
+                diagonals[i] = diagonals[i].split('');
+
+                if (diagonals[i].length === 3 && diagonals[i].every(isWinner)) {
+                    return game.gameOver();
+                } 
+            }    
+        };
+
+        var catsGameChecker = function () {
+            if (!game.getBoard().includes("") && game.won === false) {
+                return game.gameOver('cat');
+            } 
+        };
+
+        horizontalChecker();
+        verticalChecker();
+        diagonalChecker();
+        catsGameChecker();
+    };
+
+    
+    Game.prototype.gameOver = function (isDraw) {
+        this.won = true;
+
+        if (isDraw === 'cat') {
+            document.getElementById('header').innerText = "Cat's game! No winners.";
+        } else {
+            document.getElementById('header').innerText = "Game over! " + this.currentPlayer.name + " won.";
+            this.currentPlayer.score++;
+        }
+    
+        document.getElementById('reset').style.visibility = 'visible';
+    };
+
+//event listeners
+    //add click on buttons
+    for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener("click", function (e) {
-            mode = e.target.innerHTML;
+            var mode = e.target.innerHTML;
             document.getElementById('board').style.visibility = "visible";
             document.getElementById('button-container').style.visibility = "hidden";
         });
     }
 
-    //on click of a position, fill with a mark if marks isn't already there
-    document.getElementById('board').addEventListener("click", function(event) {
-       if (event.target.className === "cell" && (event.target.innerText === "" && won == false)) {
-            event.target.innerText = currentPlayer.mark;
+    document.getElementById('reset').addEventListener("click", function(e) {
+    })
+
+    document.getElementById('board').addEventListener("click", function (e) {
+        //add and still empty cells to conditional
+        if (!game.won) {
+           if (e.target.className === "cell" && e.target.innerText === "" ) {
+                game.makeMark(e);
+                game.checkForWinners(game.getBoard());
+                game.changePlayer();
+           }
        }
-       init();
     });
 
-    //run loop
-    var init = function () {
-        getAllMarks();
-        checkForWinners();
-        if (catsGameChecker() == true) {
-            return
-        };
-        allMarks = [];
-        if (won == false) {
-            changePlayer();
-        };
-    };
-
-
-    //change turns
-    var changePlayer = function () {
-        if (mode == "Human") {
-            currentPlayer == players.player1 ? currentPlayer = players.player2 : currentPlayer = players.player1;
-            header.innerText = currentPlayer.name + "'s turn.";
-        }
-
-        if (mode == "Program") {
-            currentPlayer == players.player1 ? currentPlayer = players.program : currentPlayer = players.player1;
-            header.innerText = currentPlayer.name + "'s turn.";
-            computerPick();
-        }
-    }
-
-    //function to store marks and their positions
-    var getAllMarks = function () {
-        var cells = document.getElementsByClassName("cell");
-
-        for (i = 0; i < cells.length; i++) {
-            allMarks.push(cells[i].innerText);
-        }
-    };
-
-    var checkForWinners = function () {
-        horizontalChecker();
-        verticalChecker();
-        diagonalChecker();
-    };
-
-    function isWinner(el, index, array) {
-        //TODO: change this to player.mark
-        return el == currentPlayer.mark;
-    }
-
-        // check for horizontal winners
-    var horizontalChecker = function () {
-        var start = 0,
-            end = 3;
-
-        while (start <= 6) {
-            var row = allMarks.slice(start, end);
-            return row.every(isWinner) ? gameOver() : (start +=3, end +=3);
-        }
-    };
-
-        // check for vertical winners
-    var verticalChecker = function () {
-        // TODO: filter
-        var col = [];
-    
-        for (i = 0; i <= 2; i++) {
-            col.push(allMarks[i], allMarks[i+3], allMarks[i+6]);
-
-            if (col.every(isWinner)) {
-                return gameOver();
-            }
-
-            col = [];
-        }
-    };    
-
-        //     check for diagonal winners
-        var diagonalChecker = function () {
-            // // if any corners  && middle == win
-            var offset = 4;
-            var diagonal = [];
-
-            for (i = 0; i <= 2; i+=2 ) {
-                diagonal.push(allMarks[i], allMarks[i+offset], allMarks[((i+offset)+offset)]);
-
-                if (diagonal.every(isWinner)) { gameOver(); }
-                diagonal = [];
-                offset -=2;
-            };
-        };
-
-    var catsGameChecker = function () {
-        if (allMarks.includes("") == false && won == false) {
-            header.innerText = "Cat's game! No winners.";
-            return true
-        } 
-    }
-    
-    var gameOver = function () {
-        var header = document.getElementById("header");
-
-        won = true;
-        header.innerText = "Game Over!";
-        confirm(currentPlayer.name + " won!");
-        currentPlayer.score +=1;
-    };
-});
+    var game = new Game();
+  });
