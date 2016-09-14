@@ -34,6 +34,10 @@ button {
     height: 360px;
 }
 
+#reset {
+    visibility: hidden;
+}
+
 .cell {
     display: inline-block;
     border: 1px solid blue;
