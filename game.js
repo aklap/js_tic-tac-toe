@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 var row = board.slice(i, i+3);
 
                 if (row.every(isWinner)) {
-                    return game.gameOver();
+                    return game.gameOver('won');
                 }
             }
         };
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 diagonals[i] = diagonals[i].split('');
 
                 if (diagonals[i].length === 3 && diagonals[i].every(isWinner)) {
-                    return game.gameOver();
+                    return game.gameOver('won');
                 } 
             }    
         };
