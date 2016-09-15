@@ -78,6 +78,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
         return boardState;
     };
 
+    Game.prototype.programPick = function (board) {
+        //get board state & return indexes of empty cells
+        var emptyIndexes = board.map(function(cell, index) {
+            if (cell === "") {
+                return index;
+            }
+        }).filter(function(el) { 
+            return el !== undefined;
+        });
+
+        //pick a random '' to enter mark
+        var max = emptyIndexes[emptyIndexes.length-1];
+
+        var pick = Math.floor(Math.random()*((emptyIndexes.length-1)-0 +1)) + 0;
+
+        return this.makeMark(emptyIndexes[pick]); 
+    }
+
     Game.prototype.checkForWinners = function (board) {
         function isWinner(el, index, array) {
             return el === game.currentPlayer.mark;
