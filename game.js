@@ -155,39 +155,50 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     
-    Game.prototype.gameOver = function (isDraw) {
+    Game.prototype.gameOver = function (type) {
         this.won = true;
 
-        if (isDraw === 'cat') {
+        if (type === 'cat') {
             document.getElementById('header').innerText = "Cat's game! No winners.";
-        } else {
-            document.getElementById('header').innerText = "Game over! " + this.currentPlayer.name + " won.";
-            this.currentPlayer.score++;
+        }
+
+        if (type === 'won') {
+            document.getElementById('header').innerText = "Game over! "+ this.currentPlayer.name + " won.";
         }
     
         document.getElementById('reset').style.visibility = 'visible';
     };
 
 //event listeners
-    //add click on buttons
+    //add click on mode buttons
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener("click", function (e) {
-            var mode = e.target.innerHTML;
+            game.mode = e.target.innerHTML;
             document.getElementById('board').style.visibility = "visible";
             document.getElementById('button-container').style.visibility = "hidden";
         });
     }
 
+    //if user clicks reset button, get a new game
     document.getElementById('reset').addEventListener("click", function(e) {
-    })
+        location.reload();
+    });
 
+    //event driven run loop
     document.getElementById('board').addEventListener("click", function (e) {
-        //add and still empty cells to conditional
         if (!game.won) {
            if (e.target.className === "cell" && e.target.innerText === "" ) {
                 game.makeMark(e);
                 game.checkForWinners(game.getBoard());
                 game.changePlayer();
+
+                if(game.mode === "Program" && !game.won) {
+                    setTimeout (function() {
+                        game.programPick(game.getBoard());
+                        game.checkForWinners(game.getBoard());
+                        game.changePlayer();
+                    }, 900);
+                }
            }
        }
     });
