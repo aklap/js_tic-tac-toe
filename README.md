@@ -7,7 +7,6 @@ Tic-tac-toe board game made with Javascript, no libraries.
 Features:
 
 - 2 player mode
-- Winner notification with alert popup. 
 
 To Do:
 
