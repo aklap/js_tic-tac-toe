@@ -10,36 +10,62 @@ document.addEventListener("DOMContentLoaded", function(event) {
         this.players = {
                         player1 : {
                             name: "Player 1",
-                            score : 0, 
                             mark : 'x'
                         },
 
                         player2 : {
                             name: "Player 2",
-                            score: 0, 
                             mark: 'o'
-                        }, 
-                    };
+                        },
 
-        this.currentPlayer = this.players['player1'];
+                        program: {
+                            name: "Program",
+                            mark: 'o'
+                        } 
+                    };
+        this.currentPlayer = this.players.player1;
     }
 
-    Game.prototype.makeMark = function (cell) {
-        cell.target.innerText = this.currentPlayer['mark'];
+    //insert player's mark into a cell on board
+    Game.prototype.makeMark = function (pick) {
+        if (pick.constructor === Number) {
+            return cells[pick].innerText = this.currentPlayer.mark;
+        } else {
+            pick.target.innerText = this.currentPlayer.mark;
+        }
     };
 
     //change turns
     Game.prototype.changePlayer = function () {
         var player1 = this.players.player1,
-            player2 = this.players.player2;
-        if (!this.won) {
+            player2 = this.players.player2,
+            program = this.players.program;
+
+        if (!this.won && this.mode === "Human") {
             this.currentPlayer === player1 ? this.currentPlayer = player2 : this.currentPlayer = player1;
-            //TODO in a separate display function
-            document.getElementById('header').innerText = game.currentPlayer.name + "'s turn.";
+            this.changeHeader('changePlayer');
+        }
+
+        if (!this.won && this.mode === "Program") {
+            this.currentPlayer === player1 ? this.currentPlayer = program : this.currentPlayer = player1;
+            this.changeHeader('changePlayer');
         }
     };
-    
 
+    Game.prototype.changeHeader = function changeHeader(event) {
+        if (event === 'changePlayer') {
+            document.getElementById('header').innerText = this.currentPlayer.name + "'s turn.";
+        }
+
+        if (event === 'gameOver') {
+            document.getElementById('header').innerText = "Game over! "+ this.currentPlayer.name + " won.";
+        }
+
+        if (event === 'cat') {
+            document.getElementById('header').innerText = "Cat's game! No winners.";
+        }
+    }
+ 
     //fetch board state and return it
     Game.prototype.getBoard = function () {
         var boardState = [];
@@ -52,6 +78,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
         return boardState;
     };
 
+    Game.prototype.programPick = function (board) {
+        //get board state & return indexes of empty cells
+        var emptyIndexes = board.map(function(cell, index) {
+            if (cell === "") {
+                return index;
+            }
+        }).filter(function(el) { 
+            return el !== undefined;
+        });
+
+        //pick a random '' to enter mark
+        var max = emptyIndexes[emptyIndexes.length-1];
+
+        var pick = Math.floor(Math.random()*((emptyIndexes.length-1)-0 +1)) + 0;
+
+        return this.makeMark(emptyIndexes[pick]); 
+    }
+
     Game.prototype.checkForWinners = function (board) {
         function isWinner(el, index, array) {
             return el === game.currentPlayer.mark;
@@ -63,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 var row = board.slice(i, i+3);
 
                 if (row.every(isWinner)) {
-                    return game.gameOver();
+                    return game.gameOver('won');
                 }
             }
         };
@@ -77,14 +121,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 col = col.split('');
 
                 if (col.length === 3 && col.every(isWinner)) {
-                    return game.gameOver();
+                    return game.gameOver('won');
                 } 
             }
         };    
         
-        //     check for diagonal winners
+        //check for diagonal winners
         var diagonalChecker = function () {
-            // if any corners  && middle === win
                 diagonals = [];
 
                 diagonals.push(board[2] + board[4] + board[6]);
@@ -94,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 diagonals[i] = diagonals[i].split('');
 
                 if (diagonals[i].length === 3 && diagonals[i].every(isWinner)) {
-                    return game.gameOver();
+                    return game.gameOver('won');
                 } 
             }    
         };
@@ -112,39 +155,50 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     
-    Game.prototype.gameOver = function (isDraw) {
+    Game.prototype.gameOver = function (type) {
         this.won = true;
 
-        if (isDraw === 'cat') {
+        if (type === 'cat') {
             document.getElementById('header').innerText = "Cat's game! No winners.";
-        } else {
-            document.getElementById('header').innerText = "Game over! " + this.currentPlayer.name + " won.";
-            this.currentPlayer.score++;
+        }
+
+        if (type === 'won') {
+            document.getElementById('header').innerText = "Game over! "+ this.currentPlayer.name + " won.";
         }
     
         document.getElementById('reset').style.visibility = 'visible';
     };
 
 //event listeners
-    //add click on buttons
+    //add click on mode buttons
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener("click", function (e) {
-            var mode = e.target.innerHTML;
+            game.mode = e.target.innerHTML;
             document.getElementById('board').style.visibility = "visible";
             document.getElementById('button-container').style.visibility = "hidden";
         });
     }
 
+    //if user clicks reset button, get a new game
     document.getElementById('reset').addEventListener("click", function(e) {
-    })
+        location.reload();
+    });
 
+    //event driven run loop
     document.getElementById('board').addEventListener("click", function (e) {
-        //add and still empty cells to conditional
         if (!game.won) {
            if (e.target.className === "cell" && e.target.innerText === "" ) {
                 game.makeMark(e);
                 game.checkForWinners(game.getBoard());
                 game.changePlayer();
+
+                if(game.mode === "Program" && !game.won) {
+                    setTimeout (function() {
+                        game.programPick(game.getBoard());
+                        game.checkForWinners(game.getBoard());
+                        game.changePlayer();
+                    }, 900);
+                }
            }
        }
     });
