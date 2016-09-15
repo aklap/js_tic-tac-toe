@@ -121,14 +121,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 col = col.split('');
 
                 if (col.length === 3 && col.every(isWinner)) {
-                    return game.gameOver();
+                    return game.gameOver('won');
                 } 
             }
         };    
         
-        //     check for diagonal winners
+        //check for diagonal winners
         var diagonalChecker = function () {
-            // if any corners  && middle === win
                 diagonals = [];
 
                 diagonals.push(board[2] + board[4] + board[6]);
