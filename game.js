@@ -10,36 +10,62 @@ document.addEventListener("DOMContentLoaded", function(event) {
         this.players = {
                         player1 : {
                             name: "Player 1",
-                            score : 0, 
                             mark : 'x'
                         },
 
                         player2 : {
                             name: "Player 2",
-                            score: 0, 
                             mark: 'o'
-                        }, 
-                    };
+                        },
 
-        this.currentPlayer = this.players['player1'];
+                        program: {
+                            name: "Program",
+                            mark: 'o'
+                        } 
+                    };
+        this.currentPlayer = this.players.player1;
     }
 
-    Game.prototype.makeMark = function (cell) {
-        cell.target.innerText = this.currentPlayer['mark'];
+    //insert player's mark into a cell on board
+    Game.prototype.makeMark = function (pick) {
+        if (pick.constructor === Number) {
+            return cells[pick].innerText = this.currentPlayer.mark;
+        } else {
+            pick.target.innerText = this.currentPlayer.mark;
+        }
     };
 
     //change turns
     Game.prototype.changePlayer = function () {
         var player1 = this.players.player1,
-            player2 = this.players.player2;
-        if (!this.won) {
+            player2 = this.players.player2,
+            program = this.players.program;
+
+        if (!this.won && this.mode === "Human") {
             this.currentPlayer === player1 ? this.currentPlayer = player2 : this.currentPlayer = player1;
-            //TODO in a separate display function
-            document.getElementById('header').innerText = game.currentPlayer.name + "'s turn.";
+            this.changeHeader('changePlayer');
+        }
+
+        if (!this.won && this.mode === "Program") {
+            this.currentPlayer === player1 ? this.currentPlayer = program : this.currentPlayer = player1;
+            this.changeHeader('changePlayer');
         }
     };
-    
 
+    Game.prototype.changeHeader = function changeHeader(event) {
+        if (event === 'changePlayer') {
+            document.getElementById('header').innerText = this.currentPlayer.name + "'s turn.";
+        }
+
+        if (event === 'gameOver') {
+            document.getElementById('header').innerText = "Game over! "+ this.currentPlayer.name + " won.";
+        }
+
+        if (event === 'cat') {
+            document.getElementById('header').innerText = "Cat's game! No winners.";
+        }
+    }
+ 
     //fetch board state and return it
     Game.prototype.getBoard = function () {
         var boardState = [];
